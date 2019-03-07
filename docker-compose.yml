@@ -1,0 +1,36 @@
+
+
+
+version: '2'
+
+services:
+  db:
+    image: postgres:10
+    restart: always
+    volumes:
+    - ./data/contacts_dev:/contacts_dev
+    environment:
+      POSTGRES_USER: contacts_dev
+      POSTGRES_PASSWORD: contacts_dev_pass
+      POSTGRES_DB: contacts_dev
+      PGDATA: /contacts_dev
+
+  api:
+    image: avatsaev/angular-contacts-api:dev
+    restart: always
+    ports:
+    - 3000:3000
+    depends_on:
+    - db
+    environment:
+      DB_MASTER_URL: postgres://contacts_dev:contacts_dev_pass@db/contacts_dev
+
+  client:
+    build:
+      context: .
+      args:
+        NG_ENV: local
+    restart: always
+    ports:
+      - 4000:80
+
